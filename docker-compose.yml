@@ -1,0 +1,41 @@
+version: "2"
+services:
+    cassandra:
+      image: cassandra:3
+      ports:
+        - "7199:7199" # JMX
+        - "7000:7000" # Internode
+        - "7001:7001" # Internode (TLS)
+        - "9160:9160" # Thrift client API
+        - "9042:9042" # CQL Native transport
+      volumes:
+        - dbauth-data:/dataauth
+    rabbit:
+      image: rabbitmq:3.6-management
+      ports:
+        - "5672:5672"
+        - "15672:15672"
+    caronte:
+      image: karoku-docker-docker.bintray.io/caronte:0.10.0
+      links:
+        - earth:earth
+      volumes:
+        - /tmp:/tmp/templates
+    nix:
+      image: karoku-docker-docker.bintray.io/nix:0.3.0
+      links:
+        - earth:earth
+      volumes:
+        - /tmp:/tmp/templates
+    earth:
+      image: karoku-docker-docker.bintray.io/earth:0.9.0
+      ports:
+        - "8080:8080"
+      links:
+        - cassandra:cassandra
+        - rabbit:rabbit
+      volumes:
+        - /tmp:/tmp/templates
+
+volumes:
+  dbauth-data:
